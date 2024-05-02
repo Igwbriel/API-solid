@@ -24,6 +24,7 @@ describe('Search gyms Use Case', () => {
       title: 'Muscle center',
       description: null,
       phone: null,
+
       latitude: -6.3817596,
       longitude: -37.3496443,
     })
