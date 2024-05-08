@@ -5,7 +5,7 @@ import { Environment } from 'vitest'
 import { execSync } from 'node:child_process'
 import { PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient
+const prisma = new PrismaClient()
 
 function generateDatabaseURL(schema: string) {
   if(!process.env.DATABASE_URL) {
