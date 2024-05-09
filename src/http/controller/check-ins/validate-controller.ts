@@ -1,32 +1,19 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { z } from 'zod'
-import { makeCreateGymUseCase } from '@/use-cases/factories/make-create-gym-use-case'
+import { makeValidateCheckInUseCase } from '@/use-cases/factories/make-validate-check-in-use-case'
 
-export async function create(request: FastifyRequest, reply: FastifyReply) {
-  const createGymBodySchema = z.object({
-    title: z.string(),
-    description: z.string().nullable(),
-    phone: z.string().nullable(),
-    latitude: z.number().refine((value) => {
-      return Math.abs(value) <= 90
-    }),
-    longitude: z.number().refine((value) => {
-      return Math.abs(value) <= 180
-    }),
+export async function validate(request: FastifyRequest, reply: FastifyReply) {
+  const validateCheckInParamsSchema = z.object({
+    checkInId: z.string().uuid(),
   })
 
-  const { title, description, phone, latitude, longitude } =
-    createGymBodySchema.parse(request.body)
+  const { checkInId } = validateCheckInParamsSchema.parse(request.params)
 
-  const createGymUseCase = makeCreateGymUseCase()
+  const validateCheckInUseCase = makeValidateCheckInUseCase()
 
-  await createGymUseCase.execute({
-    title,
-    description,
-    phone,
-    latitude,
-    longitude,
+  await validateCheckInUseCase.execute({
+    checkInId,
   })
 
-  return reply.status(201).send()
+  return reply.status(204).send()
 }
