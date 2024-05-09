@@ -1,32 +1,22 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { z } from 'zod'
-import { makeCreateGymUseCase } from '@/use-cases/factories/make-create-gym-use-case'
+import { makeFetchUserCheckInsHistoryUseCase } from '@/use-cases/factories/make-fetch-user-check-ins-history-use-case'
 
-export async function create(request: FastifyRequest, reply: FastifyReply) {
-  const createGymBodySchema = z.object({
-    title: z.string(),
-    description: z.string().nullable(),
-    phone: z.string().nullable(),
-    latitude: z.number().refine((value) => {
-      return Math.abs(value) <= 90
-    }),
-    longitude: z.number().refine((value) => {
-      return Math.abs(value) <= 180
-    }),
+export async function search(request: FastifyRequest, reply: FastifyReply) {
+  const checkInHistoryQuerySchema = z.object({
+    page: z.coerce.number().min(1).default(1),
   })
 
-  const { title, description, phone, latitude, longitude } =
-    createGymBodySchema.parse(request.body)
+  const { page } = checkInHistoryQuerySchema.parse(request.query)
 
-  const createGymUseCase = makeCreateGymUseCase()
+  const FetchUserCheckInsHistory = makeFetchUserCheckInsHistoryUseCase()
 
-  await createGymUseCase.execute({
-    title,
-    description,
-    phone,
-    latitude,
-    longitude,
+  const { checkIns } = await FetchUserCheckInsHistory.execute({
+    userId: request.user.sub,
+    page,
   })
 
-  return reply.status(201).send()
+  return reply.status(200).send({
+    checkIns,
+  })
 }
